@@ -13,9 +13,9 @@ namespace Services
         private readonly IRepository<Order> _orderRepository;
         private readonly IMessageBroker _messageBroker;
         private readonly string _notificationQueueName;
-        private readonly IRepository<Customer> customerRepository;
+        private readonly IRepository<Customer> _customerRepository;
 
-        public OrderService(IValidator<OrderRequest> validator, IRepository<Order> orderRepository, IMessageBroker messageBroker, Settings settings, IRepository<Customer> _customerRepository)
+        public OrderService(IValidator<OrderRequest> validator, IRepository<Order> orderRepository, IMessageBroker messageBroker, Settings settings, IRepository<Customer> customerRepository)
         {
             _validator = validator;
             _orderRepository = orderRepository;
@@ -67,12 +67,12 @@ namespace Services
             order.Status = Infrastructure.Enums.OrderStatus.Processed;
             var updatedOrder = await _orderRepository.UpdateAsync(order);
 
-            var customer = await customerRepository.ReadAsync(order.CustomerId);
+            var customer = await _customerRepository.ReadAsync(order.CustomerId);
             var allOrders = await _orderRepository.ReadAllAsync();
 
             // I suspect that request might come simultaneously
             customer.OrderCount = allOrders.Where(o => o.CustomerId == customer.Id && o.Status == Infrastructure.Enums.OrderStatus.Awaiting).LongCount();
-            await customerRepository.UpdateAsync(customer);
+            await _customerRepository.UpdateAsync(customer);
             
             return Map(updatedOrder);
         }
