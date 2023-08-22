@@ -59,7 +59,7 @@ namespace Services
         public async Task<OrderResponse> MarkAsCompletedAsync(Guid id)
         {
             var order = await _orderRepository.ReadAsync(id);
-            if (order == null) 
+            if (order == null || order.Status == Infrastructure.Enums.OrderStatus.Processed) 
             {
                 return null;
             }

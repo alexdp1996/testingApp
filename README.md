@@ -16,4 +16,19 @@ Consumer asumes that data always correct from the queue.
 
 # Room for improvement
 Probably OrderRepo should have method to fetch count of customer's active orders instead of fetching all of them just to filter in application and count.
+But as for me efficient way is to add LastUpdated entities via SQL queries, e.g.:
+UPDATE X
+SET X.{Property1} = {Value1}, ...., X.{ValueLast} = Value.Last, X.LastUpdated = GETUTCDATE()
+OUTPUT inserted.*
+FROM {TABLE} X
+WHERE X.LastUpdated = {PreviousLastUpdated} AND X.ID = {ValueId}
+
+and if query return nothing, then nothing was updated.
+But for updating OrderCount we could event simply rely on its own transaction to not mess up
+
+UPDATE X
+SEX X.OrderCount = X.OrderCount + @Diff
+FROM Customers X
+WHERE X.Id = @Id
+
 Also foreign keys between the tables.
