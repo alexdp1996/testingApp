@@ -31,7 +31,7 @@ builder.Services.AddSingleton(settings);
 
 builder.Services.AddDbContext<Context>(options => options.UseSqlServer(settings.Database.ConnectionString));
 
-builder.Services.AddTransient<IRepository<Customer>, Repository<Customer>>();
+builder.Services.AddTransient<ICustomerRepository, CustomerRepository>();
 builder.Services.AddTransient<IRepository<Order>, Repository<Order>>();
 
 builder.Services.AddTransient<IValidator<CustomerRequest>, CustomerValidator>();

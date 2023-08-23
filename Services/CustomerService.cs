@@ -10,9 +10,9 @@ namespace Services
     {
 
         private readonly IValidator<CustomerRequest> _validator;
-        private readonly IRepository<Customer> _customerRepository;
+        private readonly ICustomerRepository _customerRepository;
 
-        public CustomerService(IValidator<CustomerRequest> validator, IRepository<Customer> customerRepository) 
+        public CustomerService(IValidator<CustomerRequest> validator, ICustomerRepository customerRepository) 
         {
             _validator = validator;
             _customerRepository = customerRepository;
@@ -25,6 +25,7 @@ namespace Services
             var customer = new Customer
             {
                 Name = request.Name,
+                LastUpdated = DateTime.UtcNow,
             };
 
             return Map(await _customerRepository.CreateAsync(customer));
