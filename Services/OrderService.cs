@@ -50,27 +50,19 @@ namespace Services
         public async Task<OrderResponse> GetAsync(Guid id)
         {
             var order = await _orderRepository.ReadAsync(id);
-            if (order == null)
-            {
-                return null;
-            }
             return Map(order);
         }
 
         public async Task<OrderResponse> MarkAsCompletedAsync(Guid id)
         {
             var order = await _orderRepository.ReadAsync(id);
-            if (order == null || order.Status == Infrastructure.Enums.OrderStatus.Processed) 
+            if (order.Status == Infrastructure.Enums.OrderStatus.Processed) 
             {
-                return null;
+                throw new ValidationException("Already processed");
             }
 
             order.Status = Infrastructure.Enums.OrderStatus.Processed;
             var updatedOrder = await _orderRepository.UpdateAsync(order);
-            if (updatedOrder == null)
-            {
-                return null;
-            }
 
             const long countDiff = -1;
             await _customerRepository.UpdateCountAsync(order.CustomerId, countDiff);

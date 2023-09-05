@@ -1,4 +1,5 @@
-﻿using Infrastructure.Models;
+﻿using Infrastructure.Exceptions;
+using Infrastructure.Models;
 using Infrastructure.Repositories;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -31,7 +32,14 @@ namespace Data.Repositories
 
         public async Task<TEntity> ReadAsync(Guid id)
         {
-            return await _dbContext.Set<TEntity>().FindAsync(id);
+            var entity = await _dbContext.Set<TEntity>().FindAsync(id);
+
+            if (entity == null)
+            {
+                throw new NotFoundException();
+            }
+
+            return entity;
         }
 
         public async Task<TEntity> UpdateAsync(TEntity entity)
@@ -48,8 +56,15 @@ namespace Data.Repositories
             var t = await _dbContext.Set<TEntity>().FromSqlRaw($"Select * from orders").ToListAsync();
 
             var query = $"UPDATE T SET {string.Join(",", fields.Where(f => f.Name != "Id" && f.Name != "LastUpdated").Select(f => $"T.{f.Name} = @{f.Name}"))}, T.LastUpdated = GETUTCDATE() OUTPUT inserted.* FROM {tableName} T WHERE T.Id = @Id AND T.LastUpdated = @LastUpdated;";
-            var result = await _dbContext.Set<TEntity>().FromSqlRaw($"{query}", sqlParams).ToListAsync();
-            return result.FirstOrDefault();
+            var queryResult = await _dbContext.Set<TEntity>().FromSqlRaw($"{query}", sqlParams).ToListAsync();
+            var result = queryResult.FirstOrDefault();
+
+            if (result == null) 
+            {
+                throw new ConcurencyUpdateException();
+            }
+
+            return result;
         }
 
         private static SqlParameter GetDatetime2(string name, DateTime date)

@@ -10,6 +10,7 @@ using Infrastructure.Settings;
 using Infrastructure.Validators;
 using Microsoft.EntityFrameworkCore;
 using Services;
+using TestingApp.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -48,6 +49,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapControllers();
+app.MapControllers(); 
+app.UseMiddleware<CustomExceptionMiddleware>();
 
 app.Run();
