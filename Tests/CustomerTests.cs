@@ -2,8 +2,6 @@ using FluentValidation;
 using Infrastructure.Dtos;
 using Infrastructure.Models;
 using Infrastructure.Repositories;
-using Infrastructure.Services;
-using Infrastructure.Settings;
 using Moq;
 using Services;
 
@@ -11,12 +9,12 @@ namespace Tests
 {
     public class CustomerTests
     {
-        private Mock<IRepository<Customer>> repo;
+        private Mock<ICustomerRepository> repo;
 
         [SetUp]
         public void Setup()
         {
-            repo = new Mock<IRepository<Customer>>(MockBehavior.Strict);
+            repo = new Mock<ICustomerRepository>(MockBehavior.Strict);
         }
 
         [Test]

@@ -10,6 +10,7 @@ using Infrastructure.Settings;
 using Infrastructure.Validators;
 using Microsoft.EntityFrameworkCore;
 using Services;
+using TestingApp.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,7 +32,7 @@ builder.Services.AddSingleton(settings);
 
 builder.Services.AddDbContext<Context>(options => options.UseSqlServer(settings.Database.ConnectionString));
 
-builder.Services.AddTransient<IRepository<Customer>, Repository<Customer>>();
+builder.Services.AddTransient<ICustomerRepository, CustomerRepository>();
 builder.Services.AddTransient<IRepository<Order>, Repository<Order>>();
 
 builder.Services.AddTransient<IValidator<CustomerRequest>, CustomerValidator>();
@@ -48,6 +49,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapControllers();
+app.MapControllers(); 
+app.UseMiddleware<CustomExceptionMiddleware>();
 
 app.Run();

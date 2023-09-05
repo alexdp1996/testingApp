@@ -1,14 +1,13 @@
 ﻿using FluentValidation;
 using Infrastructure.Constants;
 using Infrastructure.Dtos;
-using Infrastructure.Models;
 using Infrastructure.Repositories;
 
 namespace Infrastructure.Validators
 {
     public class OrderValidator : AbstractValidator<OrderRequest>
     {
-        public OrderValidator(IRepository<Customer> customerRepository) 
+        public OrderValidator(ICustomerRepository customerRepository) 
         {
             ClassLevelCascadeMode = CascadeMode.Continue;
             RuleLevelCascadeMode = CascadeMode.Stop;

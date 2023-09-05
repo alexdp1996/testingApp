@@ -13,9 +13,9 @@ namespace Services
         private readonly IRepository<Order> _orderRepository;
         private readonly IMessageBroker _messageBroker;
         private readonly string _notificationQueueName;
-        private readonly IRepository<Customer> _customerRepository;
+        private readonly ICustomerRepository _customerRepository;
 
-        public OrderService(IValidator<OrderRequest> validator, IRepository<Order> orderRepository, IMessageBroker messageBroker, Settings settings, IRepository<Customer> customerRepository)
+        public OrderService(IValidator<OrderRequest> validator, IRepository<Order> orderRepository, IMessageBroker messageBroker, Settings settings, ICustomerRepository customerRepository)
         {
             _validator = validator;
             _orderRepository = orderRepository;
@@ -32,7 +32,8 @@ namespace Services
             {
                 CustomerId = request.CustomerId,
                 Name = request.Name,
-                Status = Infrastructure.Enums.OrderStatus.Awaiting
+                Status = Infrastructure.Enums.OrderStatus.Awaiting,
+                LastUpdated = DateTime.UtcNow,
             };
 
             await _messageBroker.SendAsync(request.CustomerId.ToString(), _notificationQueueName);
@@ -49,30 +50,22 @@ namespace Services
         public async Task<OrderResponse> GetAsync(Guid id)
         {
             var order = await _orderRepository.ReadAsync(id);
-            if (order == null)
-            {
-                return null;
-            }
             return Map(order);
         }
 
         public async Task<OrderResponse> MarkAsCompletedAsync(Guid id)
         {
             var order = await _orderRepository.ReadAsync(id);
-            if (order == null || order.Status == Infrastructure.Enums.OrderStatus.Processed) 
+            if (order.Status == Infrastructure.Enums.OrderStatus.Processed) 
             {
-                return null;
+                throw new ValidationException("Already processed");
             }
 
             order.Status = Infrastructure.Enums.OrderStatus.Processed;
             var updatedOrder = await _orderRepository.UpdateAsync(order);
 
-            var customer = await _customerRepository.ReadAsync(order.CustomerId);
-            var allOrders = await _orderRepository.ReadAllAsync();
-
-            // I suspect that request might come simultaneously
-            customer.OrderCount = allOrders.Where(o => o.CustomerId == customer.Id && o.Status == Infrastructure.Enums.OrderStatus.Awaiting).LongCount();
-            await _customerRepository.UpdateAsync(customer);
+            const long countDiff = -1;
+            await _customerRepository.UpdateCountAsync(order.CustomerId, countDiff);
             
             return Map(updatedOrder);
         }

@@ -1,0 +1,10 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+    "ServiceBusConnectionString": "Service Bus Connection String",
+    "ServiceBusQueue": "CustomerCountUpdate",
+    "DatabaseConnectionString": "Sql Connection String"
+  }
+}

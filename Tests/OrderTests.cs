@@ -26,14 +26,14 @@ namespace Tests
 
         private Mock<IRepository<Order>> repo;
         private Mock<IMessageBroker> broker;
-        private Mock<IRepository<Customer>> customerRepository;
+        private Mock<ICustomerRepository> customerRepository;
 
         [SetUp]
         public void Setup()
         {
             repo = new Mock<IRepository<Order>>(MockBehavior.Strict);
             broker = new Mock<IMessageBroker>(MockBehavior.Strict);
-            customerRepository = new Mock<IRepository<Customer>>(MockBehavior.Strict);
+            customerRepository = new Mock<ICustomerRepository>(MockBehavior.Strict);
         }
 
         [Test]
